@@ -2,45 +2,76 @@ package main
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Пишите тесты в этом файле
 func TestGenerateRandomElements(t *testing.T) {
-	result := generateRandomElements(0)
-	if result != nil {
-		t.Errorf("expected nil\n")
+	tests := []struct {
+		name        string
+		size        int
+		expectedNil bool
+	}{
+		{
+			name:        "positive size",
+			size:        1000,
+			expectedNil: false,
+		},
+		{
+			name:        "zero size",
+			size:        0,
+			expectedNil: true,
+		},
+		{
+			name:        "negative size",
+			size:        -1,
+			expectedNil: true,
+		},
 	}
 
-	result = generateRandomElements(-1)
-	if result != nil {
-		t.Errorf("expected nil")
-	}
+	for _, v := range tests {
+		result := generateRandomElements(v.size)
+		if v.expectedNil {
+			assert.Nil(t, result)
+		} else {
+			require.NotNil(t, result)
+		}
 
-	result = generateRandomElements(1000)
-	if result == nil {
-		t.Errorf("expected slice with %d elements", 1000)
 	}
 }
 
 func TestMaximum(t *testing.T) {
-	//emptyList := []int{}
-	result := maximum([]int{})
-	if result != 0 {
-		t.Error("expected 0")
+	tests := []struct {
+		name     string
+		data     []int
+		expected int
+	}{
+		{
+			name:     "empty slice",
+			data:     []int{},
+			expected: 0,
+		},
+		{
+			name:     "single element",
+			data:     []int{100},
+			expected: 100,
+		},
+		{
+			name:     "multiple elements",
+			data:     []int{1, 5, 10},
+			expected: 10,
+		},
+		{
+			name:     "all same elements",
+			data:     []int{5, 5, 5},
+			expected: 5,
+		},
 	}
 
-	result = maximum([]int{100})
-	if result != 100 {
-		t.Error("expected 100")
-	}
-
-	result = maximum([]int{1, 5, 10})
-	if result != 10 {
-		t.Error("expected 10")
-	}
-
-	result = maximum([]int{5, 5, 5})
-	if result != 5 {
-		t.Error("expected 5")
+	for _, v := range tests {
+		result := maximum(v.data)
+		assert.Equal(t, v.expected, result)
 	}
 }

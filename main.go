@@ -22,9 +22,9 @@ func generateRandomElements(size int) []int {
 		return nil
 	}
 	randomList := make([]int, 0, size)
-	src := rand.NewSource(time.Now().Unix())
+	src := rand.Int()
 	for i := 0; i < size; i++ {
-		randomList = append(randomList, int(src.Int63()))
+		randomList = append(randomList, src)
 	}
 
 	return randomList
@@ -60,8 +60,8 @@ func maxChunks(data []int) int {
 		return data[0]
 	}
 
-	size := len(data) / CHUNKS        // размер слайса
-	maxList := make([]int, 0, CHUNKS) // слайс максимумов
+	size := len(data) / CHUNKS     // размер слайса
+	maxList := make([]int, CHUNKS) // слайс максимумов
 
 	for i := 0; i < CHUNKS; i++ {
 		beginIndex := i * size            // начальный индекс
@@ -70,28 +70,18 @@ func maxChunks(data []int) int {
 
 		wg.Add(1)
 
-		go func(sl []int) {
+		go func(sl []int, index int) {
 			defer wg.Done()
 
-			max := list[0]
-			for i := 0; i < len(list); i++ {
-				if list[i] > max {
-					max = list[i]
-				}
-			}
-			maxList = append(maxList, max)
-		}(list)
+			max := maximum(list)
+			maxList[i] = max
+		}(list, i)
 
 	}
 
 	wg.Wait()
 
-	maxResult := maxList[0]
-	for _, v := range maxList {
-		if v > maxResult {
-			maxResult = v
-		}
-	}
+	maxResult := maximum(maxList)
 
 	return maxResult
 }
