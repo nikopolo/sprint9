@@ -22,9 +22,9 @@ func generateRandomElements(size int) []int {
 		return nil
 	}
 	randomList := make([]int, 0, size)
-	src := rand.Int()
+
 	for i := 0; i < size; i++ {
-		randomList = append(randomList, src)
+		randomList = append(randomList, rand.Int())
 	}
 
 	return randomList
@@ -60,30 +60,55 @@ func maxChunks(data []int) int {
 		return data[0]
 	}
 
-	size := len(data) / CHUNKS     // размер слайса
-	maxList := make([]int, CHUNKS) // слайс максимумов
-
-	for i := 0; i < CHUNKS; i++ {
-		beginIndex := i * size            // начальный индекс
-		endIndex := beginIndex + size     // конечный индекс
-		list := data[beginIndex:endIndex] // получаемый слайс
-
-		wg.Add(1)
-
-		go func(sl []int, index int) {
-			defer wg.Done()
-
-			max := maximum(list)
-			maxList[i] = max
-		}(list, i)
-
+	if len(data) < CHUNKS { // если данных меньше, чем CHUNKS
+		return maximum(data)
 	}
 
+	maxList := make([]int, CHUNKS) // слайс максимумов
+
+	if len(data)%CHUNKS != 0 {
+		remains := len(data) % CHUNKS // остаток
+		size := len(data) / CHUNKS
+		curIndex := 0 // индекс начала отсчета
+		for i := 0; i < CHUNKS; i++ {
+			beginIndex := curIndex // начальный индекс
+			chunkSize := size      // размер CHUNK с данными
+			if i < remains {       // увеличиваем размер, чтобы распределить остаток
+				chunkSize++
+			}
+			endIndex := beginIndex + chunkSize // конечный индекс
+			list := data[beginIndex:endIndex]  // получаемый слайс
+			// fmt.Println(list)
+			curIndex = endIndex
+			wg.Add(1)
+
+			go func(sl []int, index int) {
+				defer wg.Done()
+
+				maxList[i] = maximum(list)
+			}(list, i)
+		}
+
+	} else {
+		size := len(data) / CHUNKS // размер слайса
+		for i := 0; i < CHUNKS; i++ {
+			beginIndex := i * size            // начальный индекс
+			endIndex := beginIndex + size     // конечный индекс
+			list := data[beginIndex:endIndex] // получаемый слайс
+
+			wg.Add(1)
+
+			go func(sl []int, index int) {
+				defer wg.Done()
+
+				maxList[i] = maximum(list)
+			}(list, i)
+
+		}
+	}
 	wg.Wait()
 
-	maxResult := maximum(maxList)
-
-	return maxResult
+	return maximum(maxList)
 }
 
 func main() {

@@ -65,13 +65,52 @@ func TestMaximum(t *testing.T) {
 		},
 		{
 			name:     "all same elements",
-			data:     []int{5, 5, 5},
+			data:     []int{5, 5, 5, 5, 5, 5, 5, 5},
 			expected: 5,
 		},
 	}
 
 	for _, v := range tests {
 		result := maximum(v.data)
+		assert.Equal(t, v.expected, result)
+	}
+}
+
+func TestMaxChunks(t *testing.T) {
+	tests := []struct {
+		name     string
+		data     []int
+		expected int
+	}{
+		{
+			name:     "empty slice",
+			data:     []int{},
+			expected: 0,
+		},
+		{
+			name:     "single element",
+			data:     []int{100},
+			expected: 100,
+		},
+		{
+			name:     "multiple elements",
+			data:     []int{1, 5, 10},
+			expected: 10,
+		},
+		{
+			name:     "all same elements",
+			data:     []int{5, 5, 5, 5, 5, 5, 5, 5},
+			expected: 5,
+		},
+		{
+			name:     "with remainder",
+			data:     []int{5, 5, 5, 5, 5, 5, 5, 5, 7},
+			expected: 7,
+		},
+	}
+
+	for _, v := range tests {
+		result := maxChunks(v.data)
 		assert.Equal(t, v.expected, result)
 	}
 }
